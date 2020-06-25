@@ -24,35 +24,48 @@ void drive_robot(float lin_x, float ang_z)
 void process_image_callback(const sensor_msgs::Image img)
 {
 
+    // Loop through each pixel in the image and check if there's a bright white one
+    // Then, identify if this pixel falls in the left, mid, or right side of the image
+    // Depending on the white ball position, call the drive_bot function and pass velocities to it
+    // Request a stop when there's no white ball seen by the camera
     int white_pixel = 255;
-
-    // Loop through each pixel in the image and check if its equal to the first one
     for (unsigned int i = 0; i < img.height; i++)
     {
-        for (unsigned int j = 0; j < img.step; j++)
-        if (img.data[i*img.step + j] == white_pixel)
+        unsigned int color_n = img.step/img.width;
+        for (unsigned int j = 0; j < img.step; j = j + color_n)
         {
-            if(j < img.step/3)
+            bool found_white = true;
+            unsigned int p = 0;
+            while(p<color_n)
             {
-                drive_robot(0.3, 1);
+                if(img.data[i*img.step + j + p] != white_pixel)
+                {
+                    found_white = false;
+                    break;
+                }
+                p++;
             }
-            else if(j < 2*img.step/3)
+            if(found_white)
             {
-                drive_robot(0.5, 0);
+                if(j < img.step/3)
+                {
+                    drive_robot(0.3, 1);
+                }
+                else if(j < 2*img.step/3)
+                {
+                    drive_robot(0.5, 0);
+                }
+                else
+                {
+                    drive_robot(0.3, -1);
+                }
+                return;
             }
-            else
-            {
-                drive_robot(0.3, -1);
-            }
-            return;
         }
     }
     drive_robot(0, 0);
 
-    // TODO: Loop through each pixel in the image and check if there's a bright white one
-    // Then, identify if this pixel falls in the left, mid, or right side of the image
-    // Depending on the white ball position, call the drive_bot function and pass velocities to it
-    // Request a stop when there's no white ball seen by the camera
+    
 }
 
 int main(int argc, char** argv)
