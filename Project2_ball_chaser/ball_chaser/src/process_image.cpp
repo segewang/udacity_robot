@@ -31,21 +31,9 @@ void process_image_callback(const sensor_msgs::Image img)
     int white_pixel = 255;
     for (unsigned int i = 0; i < img.height; i++)
     {
-        unsigned int color_n = img.step/img.width;
-        for (unsigned int j = 0; j < img.step; j = j + color_n)
+        for (unsigned int j = 0; j < img.step; j=j+3) 
         {
-            bool found_white = true;
-            unsigned int p = 0;
-            while(p<color_n)
-            {
-                if(img.data[i*img.step + j + p] != white_pixel)
-                {
-                    found_white = false;
-                    break;
-                }
-                p++;
-            }
-            if(found_white)
+            if (img.data[i*img.step + j] == white_pixel && img.data[i*img.step + j + 1] == white_pixel && img.data[i*img.step + j + 2] == white_pixel) // check RGB
             {
                 if(j < img.step/3)
                 {
